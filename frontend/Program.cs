@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ZCPU;
 namespace ZOS
 {
     public class Program
