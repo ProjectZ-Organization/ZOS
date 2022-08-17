@@ -98,11 +98,6 @@ namespace ZOS
             {
               Environment.Exit(0);
             }
-            else if (input.StartsWith("applib"))
-            {
-                ROMS.OSDB osdb = new ROMS.OSDB(c);
-
-            }
             else if (input.StartsWith("test"))
             {
 
