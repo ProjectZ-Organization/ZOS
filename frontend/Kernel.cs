@@ -62,27 +62,27 @@ namespace ZOS
             }
             else if (input.StartsWith("gTest"))
             {
-                
-                    int a = Console.BufferHeight / 3;
-                    Color[] cc = new Color[3] { Color.White, Color.Red, Color.Black };
-                    for (int x = 0; x < Console.BufferWidth; x++)
+
+                int a = Console.BufferHeight / 3;
+                Color[] cc = new Color[3] { Color.White, Color.Red, Color.Black };
+                for (int x = 0; x < Console.BufferWidth; x++)
+                {
+                    for (int y = 0; y < Console.BufferHeight; y++)
                     {
-                        for (int y = 0; y < Console.BufferHeight; y++)
-                        {
-                            c.Display.setPixel(cc[Convert.ToInt32(Math.Floor((double)y / a))], x, y);
-                        }
+                        c.Display.setPixel(cc[Convert.ToInt32(Math.Floor((double)y / a))], x, y);
                     }
-                    System.Threading.Thread.Sleep(3000);
-                    Color bgc = Color.Black;
-                    for (int x = 0; x < Console.BufferWidth; x++)
+                }
+                System.Threading.Thread.Sleep(3000);
+                Color bgc = Color.Black;
+                for (int x = 0; x < Console.BufferWidth; x++)
+                {
+                    for (int y = 0; y < Console.BufferHeight; y++)
                     {
-                        for (int y = 0; y < Console.BufferHeight; y++)
-                        {
-                            c.Display.setPixel(bgc, x, y);
-                        }
+                        c.Display.setPixel(bgc, x, y);
                     }
-                    Console.SetCursorPosition(0, 0);
-                
+                }
+                Console.SetCursorPosition(0, 0);
+
 
             }
             else if (input.StartsWith("curl"))
@@ -96,16 +96,13 @@ namespace ZOS
             }
             else if (input.StartsWith("exit"))
             {
-              Environment.Exit(0);
+                Environment.Exit(0);
             }
-            else if (input.StartsWith("test"))
+            else if (input.StartsWith("run"))
             {
 
-                Console.WriteLine(c.IsReserved(30));
-                c.ReserveIndex(30);
-                Console.WriteLine(c.IsReserved(30));
-                c.UnreserveIndex(30);
-                Console.WriteLine(c.IsReserved(30));
+                GAZ gi = new GAZ();
+                gi.Run(input.Replace("run ", ""), c);
             }
 
         }
