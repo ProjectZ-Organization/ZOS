@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-namespace ZCPU
+namespace ZOS
 {
     public class Program
     {
@@ -16,7 +16,7 @@ namespace ZCPU
             c.Display = new Display();
             c.Network = new Network();
             Console.Clear();
-            ZOS.Kernel.kernel_main(c);
+            Kernel.kernel_main(c);
         }
         static void Main(string[] args)
         {
