@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -104,7 +105,14 @@ namespace ZOS
                 GAZ gi = new GAZ();
                 gi.Run(input.Replace("run ", ""), c);
             }
-
+            else if (input.StartsWith("wget"))
+            {
+                Console.WriteLine("Getting content...");
+                byte[] content = c.Network.getBytes(input.Split(' ')[1]);
+                Console.WriteLine("Saving...");
+                File.WriteAllBytes(input.Split(' ')[2], content);
+                Console.WriteLine("Done!");
+            }
         }
         public static void kernel_main(CPU c)
         {
