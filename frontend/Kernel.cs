@@ -20,7 +20,7 @@ namespace ZOS
             string totest = input.Split(' ')[0];
             if (input.StartsWith("echo "))
             {
-                c.prnt(input.Replace("echo ", ""));
+                Console.WriteLine(input.Replace("echo ", ""));
                 c.nl();
             }
             else if (input.StartsWith("ri"))
@@ -32,7 +32,7 @@ namespace ZOS
                 try
                 {
                     var result = Convert.ToUInt64((new DataTable()).Compute(input.Replace("math ", ""), ""));
-                    c.prnt((result).ToString());
+                    Console.WriteLine((result).ToString());
                     c.nl();
                 }
                 catch
@@ -58,7 +58,7 @@ namespace ZOS
             }
             else if (input.StartsWith("ver"))
             {
-                c.prnt("Z beta 1 codename ready");
+                Console.WriteLine("Z beta 1 codename ready");
                 c.nl();
             }
             else if (input.StartsWith("gTest"))
@@ -88,7 +88,7 @@ namespace ZOS
             }
             else if (input.StartsWith("curl"))
             {
-                c.prnt(c.Network.get(input.Replace("curl ", "")));
+                Console.WriteLine(c.Network.get(input.Replace("curl ", "")));
 
             }
             else if (input.StartsWith("clear"))
@@ -117,12 +117,12 @@ namespace ZOS
         public static void kernel_main(CPU c)
         {
 
-            c.prnt("Welcome to Z!\n");
+            Console.WriteLine("Welcome to Z!\n");
 
             c.nl();
             while (true)
             {
-                c.prnt("> ", false);
+                Console.Write("> ");
                 c.memclean(0, 30);
                 c.rde();
                 kernel_read(c);
