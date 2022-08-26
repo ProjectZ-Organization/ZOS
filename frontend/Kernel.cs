@@ -31,7 +31,6 @@ namespace ZOS.frontend
             if (input.StartsWith("echo"))
             {
                 Console.WriteLine(input.Replace("echo ", ""));
-                c.nl();
             }
             //else if (input.StartsWith("ri")) c.initd(c.bitsize);
             else if (input.StartsWith("math"))
@@ -117,7 +116,7 @@ namespace ZOS.frontend
             }
             else if (input.StartsWith("touch"))
             {
-                File.WriteAllText(Directory.GetCurrentDirectory() + "\\" + input.Replace("mkdir ", ""), "");
+                File.WriteAllText(Directory.GetCurrentDirectory() + "\\" + input.Replace("touch ", ""), "");
             }
             else if (input.StartsWith("sh"))
             {
@@ -126,6 +125,21 @@ namespace ZOS.frontend
             else if (input.StartsWith("uname"))
             {
                 Console.WriteLine(kernel + " " + zos_ver);
+            }
+            else if (input.StartsWith("cd"))
+            {
+                if(Directory.Exists(Directory.GetCurrentDirectory() + "\\" + input.Replace("cd ", "")))
+                {
+                    Directory.SetCurrentDirectory(Directory.GetCurrentDirectory() + "\\" + input.Replace("cd ", ""));
+                }
+                else if(input.StartsWith("cd .."))
+                {
+                    Directory.SetCurrentDirectory(Directory.GetParent(Directory.GetCurrentDirectory()).FullName);
+                }
+                else
+                {
+                    Directory.SetCurrentDirectory(input.Replace("cd ", ""));
+                }
             }
         }
         public static string get_text_after_last_occurance_of_string(string a, string b)
