@@ -16,7 +16,7 @@ namespace ZOS.frontend
     {
         public static string hostname = "";
         public static string kernel = "ZOS Kernel";
-        public static string zos_ver = "0.9.4";
+        public static string zos_ver = "0.9.5";
         public static void RunShellFile(CPU c, string file)
         {
             string[] f = File.ReadAllLines(file);
@@ -144,7 +144,8 @@ namespace ZOS.frontend
         }
         public static string get_text_after_last_occurance_of_string(string a, string b)
         {
-            return a.Substring(a.LastIndexOf(b)+b.Length, a.Length);
+
+            return a.Substring(a.LastIndexOf(b));
         }
         public static void kmain(CPU c, string hn)
         {
@@ -161,8 +162,18 @@ namespace ZOS.frontend
                 Console.Write(":");
                 Console.ForegroundColor = ConsoleColor.Blue;
                 string e;
-                if (Directory.GetCurrentDirectory().Contains("\\ZCPU")) e = get_text_after_last_occurance_of_string(Directory.GetCurrentDirectory(), "\\ZCPU");
+                if (Directory.GetCurrentDirectory().Contains("\\ZOS")) e = get_text_after_last_occurance_of_string(Directory.GetCurrentDirectory(), "\\ZOS").Replace("\\ZOS", "").Replace("\\", "/");
                 else e = Directory.GetCurrentDirectory();
+                if (e.Length>0) 
+                {
+                    if(e[0]=='/')
+                    {
+                        var k = e.ToList();
+                        k.RemoveAt(0);
+                        e = new string(k.ToArray());
+                    }
+                }
+                if (!e.Contains(":")) e = "/" + e;
                 Console.Write(e);
                 Console.ForegroundColor = old;
                 Console.Write("$ ");
