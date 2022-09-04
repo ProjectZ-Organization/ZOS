@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -16,21 +17,63 @@ namespace ZOS.frontend
     {
         public static string hostname = "";
         public static string kernel = "ZOS Kernel";
-        public static string zos_ver = "0.9.5";
+        public static string zos_ver = "0.9.6";
         public static void RunShellFile(CPU c, string file)
         {
             string[] f = File.ReadAllLines(file);
-            foreach(var line in f)
+            foreach (var line in f)
             {
                 kint(c, line);
             }
         }
+        //kernel write
+        //basically console.writeline but it can write to files
+        //if the second argument is empty it writes to stdout
+        public static void kwrite(string a)
+        {
+            if (to == "")
+            {
+                Console.WriteLine(a);
+                return;
+            }
+            else
+            {
+                if (to == "/dev/null") return;
+                if (!File.Exists(to)) to = Directory.GetCurrentDirectory() + "\\" + to;
+                File.AppendAllText(to, a + "\n");
+            }
+        }
+        public static string to = "";
         public static void kint(CPU c, string input)
         {
+            to = "";
+            if(input.Contains(">"))
+            {
+                to = get_text_after_last_occurance_of_string(input, ">").Replace(">", "");
+                if (to.StartsWith(" "))
+                {
+                    to = to.Substring(1);
+                }
+                input = input.Replace(">"+to, "");
+                input = input.Replace(">" + " " + to, "");
+            }
+            if (to.StartsWith(">"))
+            {
+                File.WriteAllText(to, "");
+                to = to.Substring(1);
+            }
+            if (input.EndsWith(" "))
+            {
+                input = input.Substring(0, input.Length - 1);
+            }
+            if (input.StartsWith(" "))
+            {
+                input = input.Substring(1);
+            }
             //string totest = input.Split(' ')[0];
             if (input.StartsWith("echo"))
             {
-                Console.WriteLine(input.Replace("echo ", ""));
+                kwrite(input.Replace("echo ", ""));
             }
             //else if (input.StartsWith("ri")) c.initd(c.bitsize);
             else if (input.StartsWith("math"))
@@ -39,7 +82,7 @@ namespace ZOS.frontend
                 {
                     //buggy
                     var result = Convert.ToUInt64((new DataTable()).Compute(input.Replace("math ", ""), ""));
-                    Console.WriteLine((result).ToString());
+                    kwrite((result).ToString());
                     c.nl();
                 }
                 catch
@@ -63,7 +106,7 @@ namespace ZOS.frontend
             //    Console.WriteLine("Z beta 1 codename ready");
             //    c.nl();
             //}
-            else if (input.StartsWith("curl")) Console.WriteLine(c.Network.get(input.Replace("curl ", "")));
+            else if (input.StartsWith("curl")) kwrite(c.Network.get(input.Replace("curl ", "")));
             else if (input.StartsWith("clear")) c.clear();
             else if (input.StartsWith("exit")) Environment.Exit(0);
             else if (input.StartsWith("run"))
@@ -73,13 +116,13 @@ namespace ZOS.frontend
             }
             else if (input.StartsWith("wget"))
             {
-                Console.WriteLine("Getting content...");
+                kwrite("Getting content...");
                 byte[] content = c.Network.getBytes(input.Split(' ')[1]);
-                Console.WriteLine("Saving...");
+                kwrite("Saving...");
                 File.WriteAllBytes(input.Split(' ')[2], content);
-                Console.WriteLine("Done!");
+                kwrite("Done!");
             }
-            else if (input == ("hostnamectl")) Console.WriteLine("Hostname: " + hostname);
+            else if (input == ("hostnamectl")) kwrite("Hostname: " + hostname);
             else if (input.StartsWith("hostnamectl set-hostname "))
             {
                 hostname = input.Replace("hostnamectl set-hostname ", "");
@@ -94,21 +137,22 @@ namespace ZOS.frontend
             }
             else if (input.StartsWith("ls"))
             {
-                foreach(var i in Directory.GetFiles(Directory.GetCurrentDirectory()))
+                foreach (var i in Directory.GetFiles(Directory.GetCurrentDirectory()))
                 {
-                    Console.WriteLine(new FileInfo(i).Name);
+                    kwrite(new FileInfo(i).Name);
                 }
                 var old = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Blue;
                 foreach (var i in Directory.GetDirectories(Directory.GetCurrentDirectory()))
                 {
-                    Console.WriteLine(new DirectoryInfo(i).Name);
+                    kwrite(new DirectoryInfo(i).Name);
                 }
                 Console.ForegroundColor = old;
             }
             else if (input.StartsWith("cat"))
             {
-                Console.WriteLine(File.ReadAllText(Directory.GetCurrentDirectory() + "\\" + input.Replace("cat ", "")));
+                if(input != "cat /dev/null")
+                    kwrite(File.ReadAllText(Directory.GetCurrentDirectory() + "\\" + input.Replace("cat ", "")));
             }
             else if (input.StartsWith("mkdir"))
             {
@@ -124,15 +168,42 @@ namespace ZOS.frontend
             }
             else if (input.StartsWith("uname"))
             {
-                Console.WriteLine(kernel + " " + zos_ver);
+                kwrite(kernel + " " + zos_ver);
+            }
+            else if (input.StartsWith("rm -rf"))
+            {
+                try
+                {
+                    if(Directory.GetFiles(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm -rf ", "")).Length+ Directory.GetDirectories(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm -rf ", "")).Length > 0)
+                    {
+                        foreach (var i in Directory.GetFiles(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm -rf ", "")))
+                        {
+                            File.Delete(i);
+                        }
+                        foreach (var i in Directory.GetDirectories(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm -rf ", "")))
+                        {
+                            Directory.Delete(i);
+                        }
+                    }
+                    Directory.Delete(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm -rf ", ""));
+                }
+                catch(DirectoryNotFoundException)
+                {
+                    kwrite("rm: directory not found");
+                }
+            }
+            else if (input.StartsWith("rm"))
+            {
+                //file not found exception handling does not work for some reason
+                File.Delete(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm ", ""));
             }
             else if (input.StartsWith("cd"))
             {
-                if(Directory.Exists(Directory.GetCurrentDirectory() + "\\" + input.Replace("cd ", "")))
+                if (Directory.Exists(Directory.GetCurrentDirectory() + "\\" + input.Replace("cd ", "")))
                 {
                     Directory.SetCurrentDirectory(Directory.GetCurrentDirectory() + "\\" + input.Replace("cd ", ""));
                 }
-                else if(input.StartsWith("cd .."))
+                else if (input.StartsWith("cd .."))
                 {
                     Directory.SetCurrentDirectory(Directory.GetParent(Directory.GetCurrentDirectory()).FullName);
                 }
@@ -164,9 +235,9 @@ namespace ZOS.frontend
                 string e;
                 if (Directory.GetCurrentDirectory().Contains("\\ZOS")) e = get_text_after_last_occurance_of_string(Directory.GetCurrentDirectory(), "\\ZOS").Replace("\\ZOS", "").Replace("\\", "/");
                 else e = Directory.GetCurrentDirectory();
-                if (e.Length>0) 
+                if (e.Length > 0)
                 {
-                    if(e[0]=='/')
+                    if (e[0] == '/')
                     {
                         var k = e.ToList();
                         k.RemoveAt(0);
@@ -179,9 +250,13 @@ namespace ZOS.frontend
                 Console.Write("$ ");
                 //Memclean is not needed here as c.prnt is deprecated
                 c.rde();
-                kint(c, intarrtostr(c.rd()));
-                //IMPORTANT! If the memclean wasnt there, the new command would overwrite the new one.
-                c.memclean(0, c.rd().Length);
+                string rd = intarrtostr(c.rd());
+                foreach(var command in rd.Split(new string[] { "&&" }, StringSplitOptions.None))
+                {
+                    kint(c, command);
+                    //IMPORTANT! If the memclean wasnt there, the new command would overwrite the new one.
+                    c.memclean(0, command.Length);
+                }
             }
         }
         public static string intarrtostr(long[] intarr)
