@@ -47,14 +47,24 @@ namespace ZOS.frontend
         public static void kint(CPU c, string input)
         {
             to = "";
-            if(input.Contains(">"))
+            if (input.Contains(">>"))
+            {
+                to = get_text_after_last_occurance_of_string(input, ">>").Replace(">>", "");
+                if (to.StartsWith(" "))
+                {
+                    to = to.Substring(1);
+                }
+                input = input.Replace(">>" + to, "");
+                input = input.Replace(">>" + " " + to, "");
+            }
+            else if (input.Contains(">"))
             {
                 to = get_text_after_last_occurance_of_string(input, ">").Replace(">", "");
                 if (to.StartsWith(" "))
                 {
                     to = to.Substring(1);
                 }
-                input = input.Replace(">"+to, "");
+                input = input.Replace(">" + to, "");
                 input = input.Replace(">" + " " + to, "");
             }
             if (to.StartsWith(">"))
@@ -151,7 +161,7 @@ namespace ZOS.frontend
             }
             else if (input.StartsWith("cat"))
             {
-                if(input != "cat /dev/null")
+                if (input != "cat /dev/null")
                     kwrite(File.ReadAllText(Directory.GetCurrentDirectory() + "\\" + input.Replace("cat ", "")));
             }
             else if (input.StartsWith("mkdir"))
@@ -174,7 +184,7 @@ namespace ZOS.frontend
             {
                 try
                 {
-                    if(Directory.GetFiles(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm -rf ", "")).Length+ Directory.GetDirectories(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm -rf ", "")).Length > 0)
+                    if (Directory.GetFiles(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm -rf ", "")).Length + Directory.GetDirectories(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm -rf ", "")).Length > 0)
                     {
                         foreach (var i in Directory.GetFiles(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm -rf ", "")))
                         {
@@ -187,7 +197,7 @@ namespace ZOS.frontend
                     }
                     Directory.Delete(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm -rf ", ""));
                 }
-                catch(DirectoryNotFoundException)
+                catch (DirectoryNotFoundException)
                 {
                     kwrite("rm: directory not found");
                 }
@@ -251,7 +261,7 @@ namespace ZOS.frontend
                 //Memclean is not needed here as c.prnt is deprecated
                 c.rde();
                 string rd = intarrtostr(c.rd());
-                foreach(var command in rd.Split(new string[] { "&&" }, StringSplitOptions.None))
+                foreach (var command in rd.Split(new string[] { "&&" }, StringSplitOptions.None))
                 {
                     kint(c, command);
                     //IMPORTANT! If the memclean wasnt there, the new command would overwrite the new one.
