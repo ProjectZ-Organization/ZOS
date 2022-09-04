@@ -17,7 +17,7 @@ namespace ZOS.frontend
     {
         public static string hostname = "";
         public static string kernel = "ZOS Kernel";
-        public static string zos_ver = "0.9.6";
+        public static string zos_ver = "0.9.7";
         public static void RunShellFile(CPU c, string file)
         {
             string[] f = File.ReadAllLines(file);
