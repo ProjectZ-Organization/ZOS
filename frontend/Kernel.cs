@@ -17,7 +17,7 @@ namespace ZOS.frontend
     {
         public static string hostname = "";
         public static string kernel = "ZOS Kernel";
-        public static string zos_ver = "0.9.7";
+        public static string zos_ver = "0.9.8";
         public static void RunShellFile(CPU c, string file)
         {
             string[] f = File.ReadAllLines(file);
@@ -206,6 +206,16 @@ namespace ZOS.frontend
             {
                 //file not found exception handling does not work for some reason
                 File.Delete(Directory.GetCurrentDirectory() + "\\" + input.Replace("rm ", ""));
+            }
+            else if (input.StartsWith("cp"))
+            {
+                File.WriteAllText(input.Split()[2], File.ReadAllText(Directory.GetCurrentDirectory() + "\\" + input.Split()[1]));
+
+            }
+            else if (input.StartsWith("mv"))
+            {
+                File.WriteAllText(input.Split()[2], File.ReadAllText(Directory.GetCurrentDirectory() + "\\" + input.Split()[1]));
+                File.Delete(Directory.GetCurrentDirectory() + "\\" + input.Split()[1]);
             }
             else if (input.StartsWith("cd"))
             {
