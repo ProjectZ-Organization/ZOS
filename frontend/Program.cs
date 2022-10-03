@@ -13,12 +13,12 @@ namespace ZOS
         /// Start the OS
         /// </summary>
         /// <param name="c">CPU instance.</param>
-        public static void _start(CPU c, string hn)
+        public static void _start(CPU c, string hn, string un)
         {
             c.Display = new Display();
             c.Network = new Network();
             Console.Clear();
-            ZOS.frontend.Kernel.kmain(c, hn);
+            ZOS.frontend.Kernel.kmain(c, hn,un);
         }
         static void Main(string[] args)
         {
@@ -34,7 +34,11 @@ namespace ZOS
             {
                 File.WriteAllText(Directory.GetCurrentDirectory() + "\\ZOS\\etc\\hostname.cfg", "ZOS");
             }
+            if (!File.Exists(Directory.GetCurrentDirectory() + "\\ZOS\\etc\\user.cfg")) {
+                File.WriteAllText(Directory.GetCurrentDirectory() + "\\ZOS\\etc\\user.cfg", "root");
+            }
             string hn = File.ReadAllText(Directory.GetCurrentDirectory() + "\\ZOS\\etc\\hostname.cfg");
+            string un = File.ReadAllText(Directory.GetCurrentDirectory() + "\\ZOS\\etc\\user.cfg");
             Directory.SetCurrentDirectory(Directory.GetCurrentDirectory() + "\\ZOS");
             // loading screen
             {
@@ -54,7 +58,7 @@ namespace ZOS
                 }
                 c.flags = Flags;
             }
-            _start(c, hn);
+            _start(c, hn,un);
         }
     }
 }
