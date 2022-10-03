@@ -16,6 +16,7 @@ namespace ZOS.frontend
     public class Kernel
     {
         public static string hostname = "";
+        public static string username = "";
         public static string kernel = "ZOS Kernel";
         public static string zos_ver = "0.9.8";
         public static void RunShellFile(CPU c, string file)
@@ -133,10 +134,15 @@ namespace ZOS.frontend
                 kwrite("Done!");
             }
             else if (input == ("hostnamectl")) kwrite("Hostname: " + hostname);
+            else if (input == ("usernamectl")) kwrite("Username: " + username);
             else if (input.StartsWith("hostnamectl set-hostname "))
             {
                 hostname = input.Replace("hostnamectl set-hostname ", "");
                 if (File.Exists(Directory.GetCurrentDirectory() + "\\etc\\hostname.cfg")) File.WriteAllText(Directory.GetCurrentDirectory() + "\\etc\\hostname.cfg", hostname);
+            }
+            else if (input.StartsWith("usernamectl set-username ")) {
+                username = input.Replace("usernamectl set-username ", "");
+                if (File.Exists(Directory.GetCurrentDirectory() + "\\etc\\user.cfg")) File.WriteAllText(Directory.GetCurrentDirectory() + "\\etc\\hostname.cfg", username);
             }
             else if (input.StartsWith("nano"))
             {
@@ -238,9 +244,10 @@ namespace ZOS.frontend
 
             return a.Substring(a.LastIndexOf(b));
         }
-        public static void kmain(CPU c, string hn)
+        public static void kmain(CPU c, string hn, string un)
         {
             hostname = hn;
+            username = un;
             Console.WriteLine("Welcome to Z!\n");
 
             c.nl();
@@ -248,7 +255,7 @@ namespace ZOS.frontend
             {
                 var old = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write("root@" + hostname);
+                Console.Write(un + "@" + hostname);
                 Console.ForegroundColor = old;
                 Console.Write(":");
                 Console.ForegroundColor = ConsoleColor.Blue;
